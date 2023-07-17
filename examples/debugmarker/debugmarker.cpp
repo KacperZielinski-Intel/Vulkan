@@ -221,6 +221,8 @@ public:
 		camera.setRotationSpeed(0.5f);
 		camera.setPosition(glm::vec3(0.1f, 1.1f, -8.5f));
 		camera.setPerspective(60.0f, (float)width / (float)height, 0.1f, 256.0f);
+
+		enabledDeviceExtensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
 	}
 
 	// Enable physical device features required for this example
@@ -460,7 +462,11 @@ public:
 
 		for (int32_t i = 0; i < drawCmdBuffers.size(); ++i)
 		{
+			auto deferred_handle = VkDeferredOperationKHR{};
+
 			VK_CHECK_RESULT(vkBeginCommandBuffer(drawCmdBuffers[i], &cmdBufInfo));
+
+			vkCreateDeferredOperationKHR(device, nullptr, &deferred_handle);
 
 			/*
 				First render pass: Offscreen rendering
@@ -582,6 +588,7 @@ public:
 
 			}
 
+			vkDestroyDeferredOperationKHR(device, deferred_handle, nullptr);
 			VK_CHECK_RESULT(vkEndCommandBuffer(drawCmdBuffers[i]));
 		}
 	}
