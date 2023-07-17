@@ -222,6 +222,7 @@ public:
 		camera.setPosition(glm::vec3(0.1f, 1.1f, -8.5f));
 		camera.setPerspective(60.0f, (float)width / (float)height, 0.1f, 256.0f);
 
+		apiVersion = VK_API_VERSION_1_3;
 		enabledDeviceExtensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
 	}
 
@@ -466,6 +467,7 @@ public:
 
 			VK_CHECK_RESULT(vkBeginCommandBuffer(drawCmdBuffers[i], &cmdBufInfo));
 
+			auto vkCreateDeferredOperationKHR = reinterpret_cast<PFN_vkCreateDeferredOperationKHR>(vkGetInstanceProcAddr(instance, "vkCreateDeferredOperationKHR"));
 			vkCreateDeferredOperationKHR(device, nullptr, &deferred_handle);
 
 			/*
@@ -588,6 +590,7 @@ public:
 
 			}
 
+			auto vkDestroyDeferredOperationKHR = reinterpret_cast<PFN_vkDestroyDeferredOperationKHR>(vkGetInstanceProcAddr(instance, "vkDestroyDeferredOperationKHR"));
 			vkDestroyDeferredOperationKHR(device, deferred_handle, nullptr);
 			VK_CHECK_RESULT(vkEndCommandBuffer(drawCmdBuffers[i]));
 		}
