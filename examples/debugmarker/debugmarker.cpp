@@ -15,6 +15,9 @@
 #include "vulkanexamplebase.h"
 #include "VulkanglTFModel.h"
 
+#include "RenderDoc.hpp"
+//#include "api/app/renderdoc_app.h"
+
 #define ENABLE_VALIDATION false
 
 // Offscreen properties
@@ -463,12 +466,7 @@ public:
 
 		for (int32_t i = 0; i < drawCmdBuffers.size(); ++i)
 		{
-			auto deferred_handle = VkDeferredOperationKHR{};
-
 			VK_CHECK_RESULT(vkBeginCommandBuffer(drawCmdBuffers[i], &cmdBufInfo));
-
-			auto vkCreateDeferredOperationKHR = reinterpret_cast<PFN_vkCreateDeferredOperationKHR>(vkGetInstanceProcAddr(instance, "vkCreateDeferredOperationKHR"));
-			vkCreateDeferredOperationKHR(device, nullptr, &deferred_handle);
 
 			/*
 				First render pass: Offscreen rendering
@@ -589,9 +587,6 @@ public:
 				DebugMarker::endRegion(drawCmdBuffers[i]);
 
 			}
-
-			auto vkDestroyDeferredOperationKHR = reinterpret_cast<PFN_vkDestroyDeferredOperationKHR>(vkGetInstanceProcAddr(instance, "vkDestroyDeferredOperationKHR"));
-			vkDestroyDeferredOperationKHR(device, deferred_handle, nullptr);
 			VK_CHECK_RESULT(vkEndCommandBuffer(drawCmdBuffers[i]));
 		}
 	}
@@ -754,11 +749,51 @@ public:
 
 	void draw()
 	{
-		VulkanExampleBase::prepareFrame();
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &drawCmdBuffers[currentBuffer];
-		VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
-		VulkanExampleBase::submitFrame();
+		auto draw = [&]() {
+			VulkanExampleBase::prepareFrame();
+
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &drawCmdBuffers[currentBuffer];
+
+			uint32_t gpu_amount = 0;
+			vkEnumeratePhysicalDevices(instance, &gpu_amount, nullptr);
+
+			VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
+			VulkanExampleBase::submitFrame();
+		};
+
+		static bool capture_frame = true;
+		static uint64_t captured_frames = 0;
+
+		bool is_RenderDoc_attached = RenderDocAPI::is_RenderDoc_attached();
+
+		if (is_RenderDoc_attached && !capture_frame)
+		{
+			exit(EXIT_SUCCESS);
+		}
+		else if (!is_RenderDoc_attached)
+		{
+			draw();
+			return;
+		}
+
+		RenderDocAPI::get_api()->SetCaptureOptionU32(eRENDERDOC_Option_CaptureCallstacks, 1);
+		RenderDocAPI::get_api()->StartFrameCapture(nullptr, nullptr);
+
+		auto deferred_handle = VkDeferredOperationKHR{};
+		auto vkCreateDeferredOperationKHR = reinterpret_cast<PFN_vkCreateDeferredOperationKHR>(vkGetInstanceProcAddr(instance, "vkCreateDeferredOperationKHR"));
+		//vkCreateDeferredOperationKHR(device, nullptr, &deferred_handle);
+
+		draw();
+
+		auto vkDestroyDeferredOperationKHR = reinterpret_cast<PFN_vkDestroyDeferredOperationKHR>(vkGetInstanceProcAddr(instance, "vkDestroyDeferredOperationKHR"));
+		//vkDestroyDeferredOperationKHR(device, deferred_handle, nullptr);
+		
+		RenderDocAPI::get_api()->EndFrameCapture(nullptr, nullptr);
+
+		++captured_frames;
+		if (captured_frames > 2)
+			capture_frame = false;
 	}
 
 	void prepare()
@@ -794,6 +829,7 @@ public:
 	{
 		if (overlay->header("Info")) {
 			overlay->text("VK_EXT_debug_marker %s", (DebugMarker::active ? "active" : "not present"));
+			overlay->text("RenderDoc is %s", (RenderDocAPI::is_RenderDoc_attached() ? "attached" : "not attached"));
 		}
 		if (overlay->header("Settings")) {
 			if (overlay->checkBox("Glow", &glow)) {
