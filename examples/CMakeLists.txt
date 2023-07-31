@@ -36,6 +36,9 @@ function(buildExample EXAMPLE_NAME)
 		add_executable(${EXAMPLE_NAME} ${MAIN_CPP} ${SOURCE} ${MAIN_HEADER} ${SHADERS_GLSL} ${SHADERS_HLSL} ${README_FILES})
 		target_link_libraries(${EXAMPLE_NAME} base )
 	endif(WIN32)
+	
+	target_link_libraries(${EXAMPLE_NAME} renderdoc_api)
+	target_include_directories(${EXAMPLE_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../renderdoc)
 
 	set_target_properties(${EXAMPLE_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 	if(${EXAMPLE_NAME} STREQUAL "texture3d")
