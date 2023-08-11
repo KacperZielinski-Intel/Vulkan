@@ -226,7 +226,7 @@ public:
 		camera.setPerspective(60.0f, (float)width / (float)height, 0.1f, 256.0f);
 
 		apiVersion = VK_API_VERSION_1_3;
-		enabledDeviceExtensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
+		enabledDeviceExtensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
 	}
 
 	// Enable physical device features required for this example
@@ -780,14 +780,39 @@ public:
 		RenderDocAPI::get_api()->SetCaptureOptionU32(eRENDERDOC_Option_CaptureCallstacks, 1);
 		RenderDocAPI::get_api()->StartFrameCapture(nullptr, nullptr);
 
-		auto deferred_handle = VkDeferredOperationKHR{};
-		auto vkCreateDeferredOperationKHR = reinterpret_cast<PFN_vkCreateDeferredOperationKHR>(vkGetInstanceProcAddr(instance, "vkCreateDeferredOperationKHR"));
-		//vkCreateDeferredOperationKHR(device, nullptr, &deferred_handle);
+		auto acceleration_structure = VkAccelerationStructureKHR{};
+
+		auto acceleration_structure_buffer = VkBuffer{};
+
+		auto buffer_create_info = VkBufferCreateInfo{};
+		buffer_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		buffer_create_info.pNext = nullptr;
+		buffer_create_info.flags = 0;
+		buffer_create_info.size = 0;
+		buffer_create_info.usage = VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
+		buffer_create_info.sharingMode = VkSharingMode::VK_SHARING_MODE_EXCLUSIVE;
+		buffer_create_info.queueFamilyIndexCount = 0;
+		buffer_create_info.pQueueFamilyIndices = nullptr;
+
+		auto buffer_create_result = vkCreateBuffer(device, &buffer_create_info, nullptr, &acceleration_structure_buffer);
+
+		auto create_info = VkAccelerationStructureCreateInfoKHR{};
+		create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+		create_info.pNext = nullptr;
+		create_info.createFlags = 0;
+		create_info.buffer = acceleration_structure_buffer;
+		create_info.offset = 0;
+		create_info.size = 0;
+		create_info.type = VkAccelerationStructureTypeKHR::VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
+		create_info.deviceAddress = 0;
+
+		auto vkCreateAccelerationStructureKHR = reinterpret_cast<PFN_vkCreateAccelerationStructureKHR>(vkGetInstanceProcAddr(instance, "vkCreateAccelerationStructureKHR"));
+		auto result = vkCreateAccelerationStructureKHR(device, &create_info, nullptr, &acceleration_structure);
 
 		draw();
 
-		auto vkDestroyDeferredOperationKHR = reinterpret_cast<PFN_vkDestroyDeferredOperationKHR>(vkGetInstanceProcAddr(instance, "vkDestroyDeferredOperationKHR"));
-		//vkDestroyDeferredOperationKHR(device, deferred_handle, nullptr);
+		auto vkDestroyAccelerationStructureKHR = reinterpret_cast<PFN_vkDestroyAccelerationStructureKHR>(vkGetInstanceProcAddr(instance, "vkDestroyAccelerationStructureKHR"));
+		//vkDestroyAccelerationStructureKHR(device, acceleration_structure, nullptr);
 		
 		RenderDocAPI::get_api()->EndFrameCapture(nullptr, nullptr);
 
