@@ -765,6 +765,9 @@ public:
 		static bool capture_frame = true;
 		static uint64_t captured_frames = 0;
 
+		if (captured_frames > 5)
+			capture_frame = false;
+
 		bool is_RenderDoc_attached = RenderDocAPI::is_RenderDoc_attached();
 
 		if (is_RenderDoc_attached && !capture_frame)
@@ -779,6 +782,8 @@ public:
 
 		RenderDocAPI::get_api()->SetCaptureOptionU32(eRENDERDOC_Option_CaptureCallstacks, 1);
 		RenderDocAPI::get_api()->StartFrameCapture(nullptr, nullptr);
+
+		//Frame start
 
 		auto acceleration_structure = VkAccelerationStructureKHR{};
 
@@ -809,16 +814,28 @@ public:
 		auto vkCreateAccelerationStructureKHR = reinterpret_cast<PFN_vkCreateAccelerationStructureKHR>(vkGetInstanceProcAddr(instance, "vkCreateAccelerationStructureKHR"));
 		auto result = vkCreateAccelerationStructureKHR(device, &create_info, nullptr, &acceleration_structure);
 
+		// Draw
 		draw();
 
-		auto vkDestroyAccelerationStructureKHR = reinterpret_cast<PFN_vkDestroyAccelerationStructureKHR>(vkGetInstanceProcAddr(instance, "vkDestroyAccelerationStructureKHR"));
-		//vkDestroyAccelerationStructureKHR(device, acceleration_structure, nullptr);
+
+		// Other functions - vkGetAccelerationStructureDeviceAddressKHR
+		auto device_address_info = VkAccelerationStructureDeviceAddressInfoKHR{};
+		device_address_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+		device_address_info.pNext = nullptr;
+		device_address_info.accelerationStructure = acceleration_structure;
 		
+		auto vkGetAccelerationStructureDeviceAddressKHR = reinterpret_cast<PFN_vkGetAccelerationStructureDeviceAddressKHR>(vkGetInstanceProcAddr(instance, "vkGetAccelerationStructureDeviceAddressKHR"));
+		auto as_device_address = vkGetAccelerationStructureDeviceAddressKHR(device, &device_address_info);
+
+		// Frame end
 		RenderDocAPI::get_api()->EndFrameCapture(nullptr, nullptr);
 
+		vkDestroyBuffer(device, acceleration_structure_buffer, nullptr);
+
+		auto vkDestroyAccelerationStructureKHR = reinterpret_cast<PFN_vkDestroyAccelerationStructureKHR>(vkGetInstanceProcAddr(instance, "vkDestroyAccelerationStructureKHR"));
+		vkDestroyAccelerationStructureKHR(device, acceleration_structure, nullptr);
+		
 		++captured_frames;
-		if (captured_frames > 2)
-			capture_frame = false;
 	}
 
 	void prepare()
