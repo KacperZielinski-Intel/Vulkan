@@ -127,7 +127,7 @@ public:
 
 		// Build the acceleration structure on the device via a one-time command buffer submission
 		// Some implementations may support acceleration structure building on the host (VkPhysicalDeviceAccelerationStructureFeaturesKHR->accelerationStructureHostCommands), but we prefer device builds
-		bool constexpr build_on_host = true;
+		bool constexpr build_on_host = false;
 
 		if (build_on_host)
 		{
@@ -229,7 +229,7 @@ public:
 
 		// Build the acceleration structure on the device via a one-time command buffer submission
 		// Some implementations may support acceleration structure building on the host (VkPhysicalDeviceAccelerationStructureFeaturesKHR->accelerationStructureHostCommands), but we prefer device builds
-		bool constexpr build_on_host = true;
+		bool constexpr build_on_host = false;
 		
 		if (build_on_host)
 		{
