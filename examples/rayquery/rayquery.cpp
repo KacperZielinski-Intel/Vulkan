@@ -330,7 +330,7 @@ public:
 		VkWriteDescriptorSetAccelerationStructureKHR descriptorAccelerationStructureInfo = vks::initializers::writeDescriptorSetAccelerationStructureKHR();
 		descriptorAccelerationStructureInfo.accelerationStructureCount = 1;
 		descriptorAccelerationStructureInfo.pAccelerationStructures = &topLevelAS.handle;
-
+		
 		VkWriteDescriptorSet accelerationStructureWrite{};
 		accelerationStructureWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		// The specialized acceleration structure descriptor has to be chained
@@ -339,7 +339,7 @@ public:
 		accelerationStructureWrite.dstBinding = 1;
 		accelerationStructureWrite.descriptorCount = 1;
 		accelerationStructureWrite.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
-
+		
 		writeDescriptorSets.push_back(accelerationStructureWrite);
 		vkUpdateDescriptorSets(device, writeDescriptorSets.size(), writeDescriptorSets.data(), 0, nullptr);
 	}
@@ -417,13 +417,14 @@ public:
 		enabledBufferDeviceAddresFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
 		enabledBufferDeviceAddresFeatures.bufferDeviceAddress = VK_TRUE;
 
-		enabledRayTracingPipelineFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
-		enabledRayTracingPipelineFeatures.rayTracingPipeline = VK_TRUE;
-		enabledRayTracingPipelineFeatures.pNext = &enabledBufferDeviceAddresFeatures;
+		//enabledRayTracingPipelineFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
+		//enabledRayTracingPipelineFeatures.rayTracingPipeline = VK_TRUE;
+		//enabledRayTracingPipelineFeatures.pNext = &enabledBufferDeviceAddresFeatures;
 
 		enabledAccelerationStructureFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
 		enabledAccelerationStructureFeatures.accelerationStructure = VK_TRUE;
-		enabledAccelerationStructureFeatures.pNext = &enabledRayTracingPipelineFeatures;
+		//enabledAccelerationStructureFeatures.pNext = &enabledRayTracingPipelineFeatures;
+		enabledAccelerationStructureFeatures.pNext = &enabledBufferDeviceAddresFeatures;
 
 		enabledRayQueryFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR;
 		enabledRayQueryFeatures.rayQuery = VK_TRUE;
