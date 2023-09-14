@@ -127,13 +127,27 @@ public:
 
 		// Build the acceleration structure on the device via a one-time command buffer submission
 		// Some implementations may support acceleration structure building on the host (VkPhysicalDeviceAccelerationStructureFeaturesKHR->accelerationStructureHostCommands), but we prefer device builds
-		VkCommandBuffer commandBuffer = vulkanDevice->createCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
-		vkCmdBuildAccelerationStructuresKHR(
-			commandBuffer,
-			1,
-			&accelerationBuildGeometryInfo,
-			accelerationBuildStructureRangeInfos.data());
-		vulkanDevice->flushCommandBuffer(commandBuffer, queue);
+		bool constexpr build_on_host = true;
+
+		if (build_on_host)
+		{
+			vkBuildAccelerationStructuresKHR(
+				vulkanDevice->logicalDevice,
+				nullptr,
+				1,
+				&accelerationBuildGeometryInfo,
+				accelerationBuildStructureRangeInfos.data());
+		}
+		else
+		{
+			VkCommandBuffer commandBuffer = vulkanDevice->createCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+			vkCmdBuildAccelerationStructuresKHR(
+				commandBuffer,
+				1,
+				&accelerationBuildGeometryInfo,
+				accelerationBuildStructureRangeInfos.data());
+			vulkanDevice->flushCommandBuffer(commandBuffer, queue);
+		}
 
 		deleteScratchBuffer(scratchBuffer);
 	}
@@ -215,13 +229,27 @@ public:
 
 		// Build the acceleration structure on the device via a one-time command buffer submission
 		// Some implementations may support acceleration structure building on the host (VkPhysicalDeviceAccelerationStructureFeaturesKHR->accelerationStructureHostCommands), but we prefer device builds
-		VkCommandBuffer commandBuffer = vulkanDevice->createCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
-		vkCmdBuildAccelerationStructuresKHR(
-			commandBuffer,
-			1,
-			&accelerationBuildGeometryInfo,
-			accelerationBuildStructureRangeInfos.data());
-		vulkanDevice->flushCommandBuffer(commandBuffer, queue);
+		bool constexpr build_on_host = true;
+		
+		if (build_on_host)
+		{
+			vkBuildAccelerationStructuresKHR(
+				vulkanDevice->logicalDevice,
+				nullptr,
+				1,
+				&accelerationBuildGeometryInfo,
+				accelerationBuildStructureRangeInfos.data());
+		}
+		else
+		{
+			VkCommandBuffer commandBuffer = vulkanDevice->createCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+			vkCmdBuildAccelerationStructuresKHR(
+				commandBuffer,
+				1,
+				&accelerationBuildGeometryInfo,
+				accelerationBuildStructureRangeInfos.data());
+			vulkanDevice->flushCommandBuffer(commandBuffer, queue);
+		}
 
 		deleteScratchBuffer(scratchBuffer);
 		instancesBuffer.destroy();
