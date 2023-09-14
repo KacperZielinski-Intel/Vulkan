@@ -48,7 +48,7 @@ public:
 		camera.setTranslation(glm::vec3(0.0f, 3.0f, -10.0f));
 		rayQueryOnly = true;
 		enableExtensions();
-		enabledDeviceExtensions.push_back(VK_KHR_RAY_QUERY_EXTENSION_NAME);
+		//enabledDeviceExtensions.push_back(VK_KHR_RAY_QUERY_EXTENSION_NAME);
 	}
 
 	~VulkanExample()
@@ -355,20 +355,20 @@ public:
 			vks::initializers::writeDescriptorSet(descriptorSet, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, &ubo.descriptor)
 		};
 
-		VkWriteDescriptorSetAccelerationStructureKHR descriptorAccelerationStructureInfo = vks::initializers::writeDescriptorSetAccelerationStructureKHR();
-		descriptorAccelerationStructureInfo.accelerationStructureCount = 1;
-		descriptorAccelerationStructureInfo.pAccelerationStructures = &topLevelAS.handle;
-		
-		VkWriteDescriptorSet accelerationStructureWrite{};
-		accelerationStructureWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		// The specialized acceleration structure descriptor has to be chained
-		accelerationStructureWrite.pNext = &descriptorAccelerationStructureInfo;
-		accelerationStructureWrite.dstSet = descriptorSet;
-		accelerationStructureWrite.dstBinding = 1;
-		accelerationStructureWrite.descriptorCount = 1;
-		accelerationStructureWrite.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
-		
-		writeDescriptorSets.push_back(accelerationStructureWrite);
+		//VkWriteDescriptorSetAccelerationStructureKHR descriptorAccelerationStructureInfo = vks::initializers::writeDescriptorSetAccelerationStructureKHR();
+		//descriptorAccelerationStructureInfo.accelerationStructureCount = 1;
+		//descriptorAccelerationStructureInfo.pAccelerationStructures = &topLevelAS.handle;
+		//
+		//VkWriteDescriptorSet accelerationStructureWrite{};
+		//accelerationStructureWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//// The specialized acceleration structure descriptor has to be chained
+		//accelerationStructureWrite.pNext = &descriptorAccelerationStructureInfo;
+		//accelerationStructureWrite.dstSet = descriptorSet;
+		//accelerationStructureWrite.dstBinding = 1;
+		//accelerationStructureWrite.descriptorCount = 1;
+		//accelerationStructureWrite.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+		//
+		//writeDescriptorSets.push_back(accelerationStructureWrite);
 		vkUpdateDescriptorSets(device, writeDescriptorSets.size(), writeDescriptorSets.data(), 0, nullptr);
 	}
 
@@ -454,11 +454,12 @@ public:
 		//enabledAccelerationStructureFeatures.pNext = &enabledRayTracingPipelineFeatures;
 		enabledAccelerationStructureFeatures.pNext = &enabledBufferDeviceAddresFeatures;
 
-		enabledRayQueryFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR;
-		enabledRayQueryFeatures.rayQuery = VK_TRUE;
-		enabledRayQueryFeatures.pNext = &enabledAccelerationStructureFeatures;
+		//enabledRayQueryFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR;
+		//enabledRayQueryFeatures.rayQuery = VK_TRUE;
+		//enabledRayQueryFeatures.pNext = &enabledAccelerationStructureFeatures;
 
-		deviceCreatepNextChain = &enabledRayQueryFeatures;
+		//deviceCreatepNextChain = &enabledRayQueryFeatures;
+		deviceCreatepNextChain = &enabledAccelerationStructureFeatures;
 	}
 
 	void draw()

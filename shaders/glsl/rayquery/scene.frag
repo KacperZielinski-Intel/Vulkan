@@ -1,8 +1,8 @@
 #version 460
-#extension GL_EXT_ray_tracing : enable
-#extension GL_EXT_ray_query : enable
+//#extension GL_EXT_ray_tracing : enable
+//#extension GL_EXT_ray_query : enable
 
-layout (binding = 1, set = 0) uniform accelerationStructureEXT topLevelAS;
+//layout (binding = 1, set = 0) uniform accelerationStructureEXT topLevelAS;
 
 layout (location = 0) in vec3 inNormal;
 layout (location = 1) in vec3 inColor;
@@ -24,14 +24,14 @@ void main()
 
 	outFragColor = vec4(diffuse, 1.0);
 
-	rayQueryEXT rayQuery;
-	rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, inWorldPos, 0.01, L, 1000.0);
-
-	// Traverse the acceleration structure and store information about the first intersection (if any)
-	rayQueryProceedEXT(rayQuery);
-
-	// If the intersection has hit a triangle, the fragment is shadowed
-	if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionTriangleEXT ) {
-		outFragColor *= 0.1;
-	}
+	//rayQueryEXT rayQuery;
+	//rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, inWorldPos, 0.01, L, 1000.0);
+	//
+	//// Traverse the acceleration structure and store information about the first intersection (if any)
+	//rayQueryProceedEXT(rayQuery);
+	//
+	//// If the intersection has hit a triangle, the fragment is shadowed
+	//if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionTriangleEXT ) {
+	//	outFragColor *= 0.1;
+	//}
 }
